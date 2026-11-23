@@ -11,8 +11,8 @@ namespace DivineRoot.Content.Items.Weapons
 {
     public class DemonCrossbow : ModItem
     {
-        private const int ShotInterval = 6; // 0.1 seconds at 60 ticks per second.
-        private const int BurstInterval = 60; // 1 second between burst starts.
+        private const int ShotInterval = 6;  
+        private const int BurstInterval = 60;  
 
         public override string Texture => "Terraria/Images/Item_" + ItemID.DemonBow;
 
@@ -22,8 +22,6 @@ namespace DivineRoot.Content.Items.Weapons
             Item.DamageType = DamageClass.Ranged;
             Item.width = 24;
             Item.height = 46;
-            // One use lasts 12 ticks and fires at animation ticks 12 and 6 (t=0 and t=6).
-            // A 48-tick reuse delay then makes consecutive burst starts exactly 60 ticks apart.
             Item.useTime = ShotInterval;
             Item.useAnimation = ShotInterval * 2;
             Item.reuseDelay = BurstInterval - ShotInterval * 2;
@@ -42,8 +40,6 @@ namespace DivineRoot.Content.Items.Weapons
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position,
             Vector2 velocity, int type, int damage, float knockback)
         {
-            // Spawn the selected ammo projectile ourselves so it can be tagged as a DemonCrossbow shot.
-            // Shooting remains owner-authoritative, preserving the existing two-shot burst in multiplayer.
             int projectileIndex = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
             if (projectileIndex >= 0 && projectileIndex < Main.maxProjectiles)
             {
@@ -135,8 +131,6 @@ namespace DivineRoot.Content.Items.Weapons
             if (!FiredByDemonCrossbow || creditedKill || target.life > 0 || projectile.owner < 0 || projectile.owner >= Main.maxPlayers)
                 return;
 
-            // The owning client is authoritative for this personal streak. This prevents the server
-            // and other clients from crediting the same kill or playing its sounds again.
             if (Main.netMode == NetmodeID.Server || projectile.owner != Main.myPlayer)
                 return;
 

@@ -6,6 +6,10 @@
 		<AssemblyName>DivineRoot</AssemblyName>
 		<RootNamespace>DivineRoot</RootNamespace>
 		<Nullable>annotations</Nullable>
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+		<PathMap>$(MSBuildProjectDirectory)=/DivineRoot</PathMap>
 	</PropertyGroup>
 
 	<ItemGroup>

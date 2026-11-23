@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DivineRoot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b89a41758c572f9f8039e3ec454edc93ac0b9738")]
 [assembly: System.Reflection.AssemblyProductAttribute("DivineRoot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DivineRoot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

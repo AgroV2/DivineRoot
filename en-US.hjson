@@ -22,6 +22,7 @@ Mods: {
 			CouncilOfSisters.DisplayName: Council Of Sisters
 			MagicalPhaseDemonDebug.DisplayName: Magical Phase Demon Debug
 			PrimordialDemon.DisplayName: Primordial Demon
+			PrimordialDemonSphere.DisplayName: Primordial Demon Sphere
 		}
 
 		Configs: {
@@ -40,10 +41,10 @@ Mods: {
 			}
 
 			VisualFilterConfig: {
-				DisplayName: Ретро-фильтр
+				DisplayName: Фильтр
 
 				EnableGlobalRetroFilter: {
-					Label: Включить ретро-фильтр
+					Label: Включить фильтр
 					Tooltip: Накладывает приглушённый сиренево-серый фильтр на весь экран игры.
 				}
 			}
@@ -85,6 +86,11 @@ Mods: {
 			BloodSpitProjectile.DisplayName: Blood Spit Projectile
 			SistersTailProjectile.DisplayName: Sisters Tail Projectile
 			SistersTailSplashProjectile.DisplayName: Sisters Tail Splash Projectile
+			PrimordialDemonLaser.DisplayName: Primordial Demon Laser
+			PrimordialDemonCrossLaser.DisplayName: Primordial Demon Cross Laser
+			PrimordialDemonSphereProj.DisplayName: Primordial Demon Sphere Proj
+			PrimordialDemonScythe.DisplayName: Primordial Demon Scythe
+			PrimordialDemonScytheCut.DisplayName: Primordial Demon Scythe Cut
 		}
 
 		Items: {
@@ -248,6 +254,11 @@ Mods: {
 			SistersShriekDebuff: {
 				DisplayName: Sisters Shriek Debuff
 				Description: Mods.DivineRoot.Buffs.SistersShriekDebuff.Description
+			}
+
+			DemonDebuff: {
+				DisplayName: Demon Debuff
+				Description: Mods.DivineRoot.Buffs.DemonDebuff.Description
 			}
 		}
 

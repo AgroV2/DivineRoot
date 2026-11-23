@@ -6,7 +6,20 @@ namespace DivineRoot.Content.Systems
 {
     public class MusicSystem : ModSceneEffect
     {
-        private const string MusicPath = "DivineRoot/Content/Music/";
+        private const string AudioPath = "Content/Audio/";
+
+        public override void Load()
+        {
+            if (Main.dedServ)
+                return;
+
+            MusicLoader.AddMusic(Mod, AudioPath + "DemonPrimThemeDivRoot");
+            MusicLoader.AddMusic(Mod, AudioPath + "HellThemeDivRoot");
+            MusicLoader.AddMusic(Mod, AudioPath + "TownThemeDivRoot");
+            MusicLoader.AddMusic(Mod, AudioPath + "SnowThemeDivRoot");
+            MusicLoader.AddMusic(Mod, AudioPath + "CorruptionThemeDivRoot");
+            MusicLoader.AddMusic(Mod, AudioPath + "CrimosnThemeDivRoot");
+        }
 
         public override SceneEffectPriority Priority
         {
@@ -15,13 +28,18 @@ namespace DivineRoot.Content.Systems
                 if (GetBossMusic() >= 0)
                     return SceneEffectPriority.BossHigh;
 
-                if (Main.LocalPlayer.ZoneCrimson &&
-                    !Main.LocalPlayer.ZoneUnderworldHeight)
-                {
-                    return SceneEffectPriority.BiomeHigh;
-                }
+                Player player = Main.LocalPlayer;
 
-                return SceneEffectPriority.Environment;
+                if (player.ZoneUnderworldHeight)
+                    return SceneEffectPriority.Environment;
+
+                if (player.ZoneCrimson || player.ZoneCorrupt)
+                    return SceneEffectPriority.BiomeHigh;
+
+                if (player.ZoneSnow)
+                    return SceneEffectPriority.BiomeMedium;
+
+                return SceneEffectPriority.BiomeLow;
             }
         }
 
@@ -61,16 +79,19 @@ namespace DivineRoot.Content.Systems
                 return -1;
 
             if (player.ZoneUnderworldHeight)
-                return GetMusic("HellDivineRoot");
+                return GetMusic("HellThemeDivRoot");
 
             if (player.ZoneCrimson)
-                return GetMusic("CrimsonDivineRoot");
+                return GetMusic("CrimosnThemeDivRoot");
+
+            if (player.ZoneCorrupt)
+                return GetMusic("CorruptionThemeDivRoot");
 
             if (player.ZoneSnow)
-                return GetMusic("WinterDivineRoot");
+                return GetMusic("SnowThemeDivRoot");
 
             if (Main.dayTime && player.townNPCs > 2f)
-                return GetMusic("CityDayDivineRoot");
+                return GetMusic("TownThemeDivRoot");
 
             return -1;
         }
@@ -78,10 +99,10 @@ namespace DivineRoot.Content.Systems
         private int GetBossMusic()
         {
             if (IsModNpcAlive("PrimordialDemon"))
-                return GetMusic("PrimordialDemonDivineRoot");
+                return GetMusic("DemonPrimThemeDivRoot");
 
             if (IsModNpcAlive("CouncilOfSisters"))
-                return GetMusic("SistersDivineRoot");
+                return MusicLoader.GetMusicSlot(Mod, "Content/Music/SistersDivineRoot");
 
             return -1;
         }
@@ -92,9 +113,9 @@ namespace DivineRoot.Content.Systems
                    NPC.AnyNPCs(modNpc.Type);
         }
 
-        private static int GetMusic(string name)
+        private int GetMusic(string name)
         {
-            return MusicLoader.GetMusicSlot(MusicPath + name);
+            return MusicLoader.GetMusicSlot(Mod, AudioPath + name);
         }
 
         private static bool AnyBossAlive()
