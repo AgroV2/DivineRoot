@@ -1,0 +1,5 @@
+displayName = DivineRoot
+author = zlodeykapass
+version = 0.1
+includeSource = false
+buildIgnore = .git/*, .dotnet-home/*, _Dev/*, bin/*, obj/*, Properties/*, work/*, outputs/*, *.csproj, *.sln, *.slnx, *.user, *.pdb, *.mdb, *.log
