@@ -23,7 +23,7 @@ public sealed class SpectralArmProjectile : ModProjectile
 
     private static readonly Vector2 upperPivot = new(3, 41);
     private static readonly Rectangle forearmFrame = new(4, 0, 49, 36);
-    private static readonly Vector2 bladePivot = new(76, 15);
+    private static readonly Vector2 bladePivot = new(89, 15);
     private static readonly Color spiritColor = new(183, 240, 255);
 
     private static readonly Vector2 glowPadding = new(10f);
@@ -35,7 +35,6 @@ public sealed class SpectralArmProjectile : ModProjectile
 
     private Vector2 shoulderOffset;
     private Vector2 shoulder;
-    private Vector2 previousShoulder;
     private Vector2 elbow;
     private Vector2 wrist;
     private Vector2 previousWrist;
@@ -113,7 +112,6 @@ public sealed class SpectralArmProjectile : ModProjectile
         }
 
         Projectile.timeLeft = 2;
-        previousShoulder = shoulder;
         previousWrist = wrist;
         previousSwordAngle = swordAngle;
         previousSwordLength = swordLength;
@@ -265,15 +263,12 @@ public sealed class SpectralArmProjectile : ModProjectile
         Vector2 drawOffset = pixelShoulder + Main.screenPosition - shoulder;
         Vector2 drawWrist = wrist + drawOffset;
 
-        if (striking && wasStriking)
-            drawblade(blade, previousWrist - previousShoulder + shoulder + drawOffset, previousSwordAngle, previousSwordLength, spiritColor * 0.3f);
-
         Vector2 elbowOffset = elbow + drawOffset;
         Vector2 upperDirection = (elbow - shoulder).SafeNormalize(Vector2.Zero);
         Vector2 forearmDirection = (wrist - elbow).SafeNormalize(Vector2.Zero);
         Vector2 drawShoulder = shoulder + drawOffset;
-        Vector2 upperEnd = elbowOffset + upperDirection * 3f;
-        Vector2 forearmStart = elbowOffset - forearmDirection * 2f;
+        Vector2 upperEnd = elbowOffset + upperDirection;
+        Vector2 forearmStart = elbowOffset - forearmDirection;
         Vector2 upperAxis = new(20f, 3f);
         Vector2 upperSegment = upperEnd - drawShoulder;
         Vector2 upperSource = upperAxis - upperPivot;
@@ -285,19 +280,20 @@ public sealed class SpectralArmProjectile : ModProjectile
         Vector2 forearmOrigin = new(0f, 19f);
         drawglow(upperGlow, drawShoulder, upperAngle, upperPivot, upperScale);
         drawglow(forearmGlow, forearmStart, forearmAngle, forearmOrigin, forearmScale);
-        drawglow(bladeGlow, drawWrist, swordAngle + MathHelper.Pi, bladePivot, new Vector2(swordLength / 75f, 1f));
+        drawglow(bladeGlow, drawWrist, swordAngle + MathHelper.Pi, bladePivot, new Vector2(swordLength / 88f, 1f));
         Main.EntitySpriteDraw(upperTexture, drawShoulder - Main.screenPosition, null, Color.White * opacity,
             upperAngle, upperPivot, upperScale, SpriteEffects.None);
         Main.EntitySpriteDraw(forearmTexture, forearmStart - Main.screenPosition, forearmFrame, Color.White * opacity,
             forearmAngle, forearmOrigin, forearmScale, SpriteEffects.None);
-        drawblade(blade, drawWrist, swordAngle, swordLength, spiritColor);
-        drawshimmer(blade, drawWrist, swordAngle, swordLength);
+        float pulse = 0.5f + 0.5f * MathF.Sin(Main.GlobalTimeWrappedHourly * 3f);
+        Color bladeTint = Color.Lerp(spiritColor, Color.White, pulse * 0.18f);
+        drawblade(blade, drawWrist, swordAngle, swordLength, bladeTint);
         return false;
     }
 
     private static void drawglow(Texture2D texture, Vector2 position, float angle, Vector2 pivot, Vector2 scale)
     {
-        Color glow = new Color(76, 166, 208, 0) * (0.035f * opacity);
+        Color glow = new Color(76, 166, 208, 0) * (0.018f * opacity);
         Main.EntitySpriteDraw(texture, position - Main.screenPosition, null, glow, angle,
             pivot + glowPadding, scale, SpriteEffects.None);
     }
@@ -305,23 +301,6 @@ public sealed class SpectralArmProjectile : ModProjectile
     private static void drawblade(Texture2D texture, Vector2 start, float angle, float length, Color color)
     {
         Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, color * opacity, angle + MathHelper.Pi,
-            bladePivot, new Vector2(length / 75f, 1f), SpriteEffects.None);
-    }
-
-    private static void drawshimmer(Texture2D texture, Vector2 start, float angle, float length)
-    {
-        const int strip = 2;
-        float phase = Main.GlobalTimeWrappedHourly * 4f;
-        Vector2 scale = new(length / 75f, 1f);
-        for (int x = 0; x < 76; x += strip)
-        {
-            float wave = 0.5f + 0.5f * MathF.Sin(x * 0.19f + phase);
-            float glint = wave * wave * wave;
-            Color tint = Color.Lerp(new Color(85, 173, 255, 0), new Color(235, 208, 255, 0), glint)
-                * ((0.12f + glint * 0.48f) * opacity);
-            Rectangle section = new(x, 0, strip, texture.Height);
-            Main.EntitySpriteDraw(texture, start - Main.screenPosition, section, tint, angle + MathHelper.Pi,
-                new Vector2(bladePivot.X - x, bladePivot.Y), scale, SpriteEffects.None);
-        }
+            bladePivot, new Vector2(length / 88f, 1f), SpriteEffects.None);
     }
 }
