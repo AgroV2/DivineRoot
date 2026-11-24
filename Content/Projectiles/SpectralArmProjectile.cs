@@ -21,7 +21,7 @@ public sealed class SpectralArmProjectile : ModProjectile
     private const int recovery = 17;
 
     private static readonly Vector2 upperPivot = new(3, 41);
-    private static readonly Vector2 forearmPivot = new(4, 19);
+    private static readonly Rectangle forearmFrame = new(4, 0, 49, 22);
     private static readonly Vector2 bladePivot = new(76, 15);
     private static readonly Color spiritColor = new(183, 240, 255);
 
@@ -247,8 +247,7 @@ public sealed class SpectralArmProjectile : ModProjectile
         Vector2 upperDirection = (elbow - shoulder).SafeNormalize(Vector2.Zero);
         Vector2 forearmDirection = (wrist - elbow).SafeNormalize(Vector2.Zero);
         drawsegment(upperTexture, shoulder + drawOffset, elbowOffset + upperDirection * 3f, upperPivot, new Vector2(20f, 3f));
-        drawsegment(forearmTexture, elbowOffset - forearmDirection * 4f, drawWrist + forearmDirection * 2f,
-            forearmPivot, new Vector2(52f, 19f));
+        drawforearm(elbowOffset - forearmDirection * 2f, drawWrist);
         drawblade(blade, drawWrist, swordAngle, swordLength, spiritColor);
         drawshimmer(blade, drawWrist, swordAngle, swordLength);
         return false;
@@ -258,18 +257,17 @@ public sealed class SpectralArmProjectile : ModProjectile
     {
         Vector2 sourceAxis = tip - pivot;
         Vector2 segment = end - start;
-        bool stretches = texture == forearmTexture;
-        float stretch = segment.Length() / sourceAxis.Length();
-        if (!stretches)
-        {
-            Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, Color.White,
-                segment.ToRotation() - sourceAxis.ToRotation(), pivot, stretch, SpriteEffects.None);
-            return;
-        }
+        float scale = segment.Length() / sourceAxis.Length();
+        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, Color.White,
+            segment.ToRotation() - sourceAxis.ToRotation(), pivot, scale, SpriteEffects.None);
+    }
 
-        float rotation = segment.ToRotation() - sourceAxis.ToRotation();
-        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, Color.White, rotation,
-            pivot, new Vector2(stretch, 1.15f), SpriteEffects.None);
+    private static void drawforearm(Vector2 start, Vector2 end)
+    {
+        Vector2 segment = end - start;
+        Vector2 scale = new(segment.Length() / forearmFrame.Width, 1.15f);
+        Main.EntitySpriteDraw(forearmTexture, start - Main.screenPosition, forearmFrame, Color.White,
+            segment.ToRotation(), new Vector2(0f, 19f), scale, SpriteEffects.None);
     }
 
     private static void drawblade(Texture2D texture, Vector2 start, float angle, float length, Color color)
