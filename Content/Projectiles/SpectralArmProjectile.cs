@@ -26,6 +26,10 @@ public sealed class SpectralArmProjectile : ModProjectile
     private static readonly Vector2 bladePivot = new(76, 15);
     private static readonly Color spiritColor = new(183, 240, 255);
 
+    private static readonly Vector2 glowPadding = new(10f);
+    private static Texture2D upperGlow;
+    private static Texture2D forearmGlow;
+    private static Texture2D bladeGlow;
     private static Texture2D upperTexture;
     private static Texture2D forearmTexture;
 
@@ -54,12 +58,19 @@ public sealed class SpectralArmProjectile : ModProjectile
         if (Main.dedServ)
             return;
 
+        upperGlow = Mod.Assets.Request<Texture2D>("Content/Projectiles/SpectralArmUpperGlow", AssetRequestMode.ImmediateLoad).Value;
+        forearmGlow = Mod.Assets.Request<Texture2D>("Content/Projectiles/SpectralArmForearmGlow", AssetRequestMode.ImmediateLoad).Value;
+        bladeGlow = Mod.Assets.Request<Texture2D>("Content/Projectiles/SpectralArmProjectileGlow", AssetRequestMode.ImmediateLoad).Value;
+
         upperTexture = Mod.Assets.Request<Texture2D>("Content/Projectiles/SpectralArmUpper", AssetRequestMode.ImmediateLoad).Value;
         forearmTexture = Mod.Assets.Request<Texture2D>("Content/Projectiles/SpectralArmForearm", AssetRequestMode.ImmediateLoad).Value;
     }
 
     public override void Unload()
     {
+        upperGlow = null;
+        forearmGlow = null;
+        bladeGlow = null;
         upperTexture = null;
         forearmTexture = null;
     }
@@ -260,28 +271,35 @@ public sealed class SpectralArmProjectile : ModProjectile
         Vector2 elbowOffset = elbow + drawOffset;
         Vector2 upperDirection = (elbow - shoulder).SafeNormalize(Vector2.Zero);
         Vector2 forearmDirection = (wrist - elbow).SafeNormalize(Vector2.Zero);
-        drawsegment(upperTexture, shoulder + drawOffset, elbowOffset + upperDirection * 3f, upperPivot, new Vector2(20f, 3f));
-        drawforearm(elbowOffset - forearmDirection * 2f, drawWrist);
+        Vector2 drawShoulder = shoulder + drawOffset;
+        Vector2 upperEnd = elbowOffset + upperDirection * 3f;
+        Vector2 forearmStart = elbowOffset - forearmDirection * 2f;
+        Vector2 upperAxis = new(20f, 3f);
+        Vector2 upperSegment = upperEnd - drawShoulder;
+        Vector2 upperSource = upperAxis - upperPivot;
+        Vector2 upperScale = new(upperSegment.Length() / upperSource.Length());
+        Vector2 forearmSegment = drawWrist - forearmStart;
+        Vector2 forearmScale = new(forearmSegment.Length() / forearmFrame.Width, 1.15f);
+        float upperAngle = upperSegment.ToRotation() - upperSource.ToRotation();
+        float forearmAngle = forearmSegment.ToRotation();
+        Vector2 forearmOrigin = new(0f, 19f);
+        drawglow(upperGlow, drawShoulder, upperAngle, upperPivot, upperScale);
+        drawglow(forearmGlow, forearmStart, forearmAngle, forearmOrigin, forearmScale);
+        drawglow(bladeGlow, drawWrist, swordAngle + MathHelper.Pi, bladePivot, new Vector2(swordLength / 75f, 1f));
+        Main.EntitySpriteDraw(upperTexture, drawShoulder - Main.screenPosition, null, Color.White * opacity,
+            upperAngle, upperPivot, upperScale, SpriteEffects.None);
+        Main.EntitySpriteDraw(forearmTexture, forearmStart - Main.screenPosition, forearmFrame, Color.White * opacity,
+            forearmAngle, forearmOrigin, forearmScale, SpriteEffects.None);
         drawblade(blade, drawWrist, swordAngle, swordLength, spiritColor);
         drawshimmer(blade, drawWrist, swordAngle, swordLength);
         return false;
     }
 
-    private static void drawsegment(Texture2D texture, Vector2 start, Vector2 end, Vector2 pivot, Vector2 tip)
+    private static void drawglow(Texture2D texture, Vector2 position, float angle, Vector2 pivot, Vector2 scale)
     {
-        Vector2 sourceAxis = tip - pivot;
-        Vector2 segment = end - start;
-        float scale = segment.Length() / sourceAxis.Length();
-        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, Color.White * opacity,
-            segment.ToRotation() - sourceAxis.ToRotation(), pivot, scale, SpriteEffects.None);
-    }
-
-    private static void drawforearm(Vector2 start, Vector2 end)
-    {
-        Vector2 segment = end - start;
-        Vector2 scale = new(segment.Length() / forearmFrame.Width, 1.15f);
-        Main.EntitySpriteDraw(forearmTexture, start - Main.screenPosition, forearmFrame, Color.White * opacity,
-            segment.ToRotation(), new Vector2(0f, 19f), scale, SpriteEffects.None);
+        Color glow = new Color(52, 169, 245, 0) * (0.66f * opacity);
+        Main.EntitySpriteDraw(texture, position - Main.screenPosition, null, glow, angle,
+            pivot + glowPadding, scale, SpriteEffects.None);
     }
 
     private static void drawblade(Texture2D texture, Vector2 start, float angle, float length, Color color)
