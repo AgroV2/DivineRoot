@@ -16,12 +16,13 @@ public sealed class SpectralArmProjectile : ModProjectile
     private const float range = 25 * 16f;
     private const float bladeLength = 102f;
     private const float swingArc = 1.05f;
+    private const float opacity = 0.87f;
     private const int windup = 12;
     private const int strike = 12;
     private const int recovery = 17;
 
     private static readonly Vector2 upperPivot = new(3, 41);
-    private static readonly Rectangle forearmFrame = new(4, 0, 49, 22);
+    private static readonly Rectangle forearmFrame = new(4, 0, 49, 36);
     private static readonly Vector2 bladePivot = new(76, 15);
     private static readonly Color spiritColor = new(183, 240, 255);
 
@@ -110,6 +111,19 @@ public sealed class SpectralArmProjectile : ModProjectile
         updateattack();
         updatepose();
         Projectile.Center = shoulder;
+        emitparticles();
+    }
+
+    private void emitparticles()
+    {
+        if (Main.dedServ || !Main.rand.NextBool(striking ? 3 : 8))
+            return;
+
+        Vector2 tip = wrist + swordAngle.ToRotationVector2() * swordLength;
+        Vector2 position = Vector2.Lerp(wrist, tip, Main.rand.NextFloat());
+        Vector2 velocity = Main.rand.NextVector2Circular(0.65f, 0.65f);
+        Dust particle = Dust.NewDustPerfect(position, DustID.IceTorch, velocity, 0, default, 0.75f);
+        particle.noGravity = true;
     }
 
     private void updateattack()
@@ -258,7 +272,7 @@ public sealed class SpectralArmProjectile : ModProjectile
         Vector2 sourceAxis = tip - pivot;
         Vector2 segment = end - start;
         float scale = segment.Length() / sourceAxis.Length();
-        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, Color.White,
+        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, Color.White * opacity,
             segment.ToRotation() - sourceAxis.ToRotation(), pivot, scale, SpriteEffects.None);
     }
 
@@ -266,13 +280,13 @@ public sealed class SpectralArmProjectile : ModProjectile
     {
         Vector2 segment = end - start;
         Vector2 scale = new(segment.Length() / forearmFrame.Width, 1.15f);
-        Main.EntitySpriteDraw(forearmTexture, start - Main.screenPosition, forearmFrame, Color.White,
+        Main.EntitySpriteDraw(forearmTexture, start - Main.screenPosition, forearmFrame, Color.White * opacity,
             segment.ToRotation(), new Vector2(0f, 19f), scale, SpriteEffects.None);
     }
 
     private static void drawblade(Texture2D texture, Vector2 start, float angle, float length, Color color)
     {
-        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, color, angle + MathHelper.Pi,
+        Main.EntitySpriteDraw(texture, start - Main.screenPosition, null, color * opacity, angle + MathHelper.Pi,
             bladePivot, new Vector2(length / 75f, 1f), SpriteEffects.None);
     }
 
@@ -286,7 +300,7 @@ public sealed class SpectralArmProjectile : ModProjectile
             float wave = 0.5f + 0.5f * MathF.Sin(x * 0.19f + phase);
             float glint = wave * wave * wave;
             Color tint = Color.Lerp(new Color(85, 173, 255, 0), new Color(235, 208, 255, 0), glint)
-                * (0.12f + glint * 0.48f);
+                * ((0.12f + glint * 0.48f) * opacity);
             Rectangle section = new(x, 0, strip, texture.Height);
             Main.EntitySpriteDraw(texture, start - Main.screenPosition, section, tint, angle + MathHelper.Pi,
                 new Vector2(bladePivot.X - x, bladePivot.Y), scale, SpriteEffects.None);
