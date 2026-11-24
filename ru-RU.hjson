@@ -1,5 +1,10 @@
 Mods: {
 	DivineRoot: {
+		Items.SpectralArm.DisplayName: Призрачная рука
+		Items.SpectralArm.Tooltip: Призывает призрачную руку, которая поражает ближайших врагов взмахами меча
+		Buffs.SpectralArmBuff.DisplayName: Призрачная рука
+		Buffs.SpectralArmBuff.Description: Призрачная рука прикрывает тебя
+		Projectiles.SpectralArmProjectile.DisplayName: Призрачная рука
 		NPCs: {
 			DollGuide: {
 				// Census.SpawnCondition: Conditions unknown

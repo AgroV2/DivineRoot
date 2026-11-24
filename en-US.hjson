@@ -1,5 +1,10 @@
 Mods: {
 	DivineRoot: {
+		Items.SpectralArm.DisplayName: Spectral Arm
+		Items.SpectralArm.Tooltip: Summons a spectral arm that cleaves through nearby enemies
+		Buffs.SpectralArmBuff.DisplayName: Spectral Arm
+		Buffs.SpectralArmBuff.Description: A spectral arm is watching your back
+		Projectiles.SpectralArmProjectile.DisplayName: Spectral Arm
 		NPCs: {
 			DollGuide: {
 				Census.SpawnCondition: Conditions unknown
