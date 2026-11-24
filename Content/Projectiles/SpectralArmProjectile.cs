@@ -297,7 +297,7 @@ public sealed class SpectralArmProjectile : ModProjectile
 
     private static void drawglow(Texture2D texture, Vector2 position, float angle, Vector2 pivot, Vector2 scale)
     {
-        Color glow = new Color(106, 226, 255, 0) * (1.25f * opacity);
+        Color glow = new Color(76, 166, 208, 0) * (0.44f * opacity);
         Main.EntitySpriteDraw(texture, position - Main.screenPosition, null, glow, angle,
             pivot + glowPadding, scale, SpriteEffects.None);
     }
