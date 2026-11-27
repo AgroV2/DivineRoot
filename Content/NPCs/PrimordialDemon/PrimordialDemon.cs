@@ -751,9 +751,9 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
         if (!Main.dedServ && Main.rand.NextBool(2))
         {
           Vector2 offset = Main.rand.NextVector2CircularEdge(80f, 90f);
-          Dust shade = Dust.NewDustPerfect(NPC.Center + offset, DustID.Shadowflame,
+          Dust dust = Dust.NewDustPerfect(NPC.Center + offset, DustID.Shadowflame,
             -offset * 0.07f, 0, default, Main.rand.NextFloat(1.3f, 2.2f));
-          shade.noGravity = true;
+          dust.noGravity = true;
         }
         return;
       }
