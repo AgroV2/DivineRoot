@@ -66,6 +66,12 @@ public class GhostOfTheBrideProjectile : ModProjectile {
 		}
 
 	}
+	public override void OnHitPlayer(Player target,
+		Player.HurtInfo info
+	)
+	{
+		target.AddBuff(BuffID.Frostburn, 60 * 10, false);
+	}
 	private void ProjAI() {
 		int frames = 10;
 		float spd = this.Speed / frames;

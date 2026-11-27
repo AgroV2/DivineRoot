@@ -145,9 +145,17 @@ public class GhostOfTheBride : ModNPC
 
 	}
 
-	public override bool PreKill() {
+	public override bool PreKill()
+	{
 		SpawnDustDeath();
 		return true;
+	}
+
+	public override void OnHitPlayer(Player target,
+		Player.HurtInfo info
+	)
+	{
+		target.AddBuff(BuffID.Frostburn, 60 * 10, false);
 	}
 	public void BrideAI()
 	{
