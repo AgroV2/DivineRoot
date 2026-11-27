@@ -18,4 +18,11 @@
 		<None Remove="_Dev\InspectNPCLoader\**\*" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Reference Include="Luminance">
+			<HintPath>..\ModAssemblies\Luminance.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
 </Project>

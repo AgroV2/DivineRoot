@@ -19,7 +19,7 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
     private const int HoverState = 0;
     private const int ChangeSideState = 1;
     private const int EmberVolleyState = 2;
-    private const int CrossBarrageState = 3;
+    private const int ClawBarrageState = 3;
     private const int SphereSummonState = 4;
 
     private const int SlashRingState = 10;
@@ -47,7 +47,6 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
 
     private const float PhaseTwoThresholdExpert = 0.6f;
     private const float PhaseTwoThresholdClassic = 0.4f;
-    private const float CrossUnlockThreshold = 0.7f;
 
     private const float SpinTriggerPadding = 2f * 16f;
     private const int SpinCooldownTicks = 120;
@@ -105,11 +104,11 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
     private ref float FlyoverTimer => ref NPC.ai[3];
 
     public bool EmberAttackActive => (int)State == EmberVolleyState;
-    public bool CrossAttackActive => (int)State == CrossBarrageState;
+    public bool ClawAttackActive => (int)State == ClawBarrageState;
     public bool SphereAttackActive => (int)State == SphereSummonState;
     public bool TeleportActive => (int)State == TeleportState;
     public bool PhaseTwoAttackActive => (int)State >= SlashRingState;
-    public bool AnyAttackActive => EmberAttackActive || CrossAttackActive
+    public bool AnyAttackActive => EmberAttackActive || ClawAttackActive
       || SphereAttackActive || PhaseTwoAttackActive;
     public int Phase => phase;
 
@@ -241,6 +240,7 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
       NPC.noGravity = true;
       NPC.noTileCollide = true;
       NPC.friendly = false;
+      NPC.boss = true;
 
       NPC.value = 0f;
       NPC.npcSlots = 1f;
@@ -341,10 +341,10 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
         return;
       }
 
-      if (CrossAttackActive)
+      if (ClawAttackActive)
       {
         lastVisualAttackTick = -1;
-        DoCrossAttack(player);
+        DoClawAttack(player);
         return;
       }
 
@@ -475,15 +475,10 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
 
     private int PickPhaseOneAttack()
     {
-      bool crossUnlocked = LifeRatio <= CrossUnlockThreshold;
-
-      if (!crossUnlocked)
-        return attackCycle % 2 == 0 ? EmberVolleyState : SphereSummonState;
-
       return (attackCycle % 3) switch
       {
         0 => EmberVolleyState,
-        1 => CrossBarrageState,
+        1 => ClawBarrageState,
         _ => SphereSummonState
       };
     }
@@ -919,7 +914,7 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
       }
     }
 
-    private void DoCrossAttack(Player player)
+    private void DoClawAttack(Player player)
     {
       FlyoverTimer++;
       NPC.direction = attackDirection;
@@ -927,26 +922,22 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
       MoveSmoothly(player.Center + new Vector2(Side * HorizontalOffset, -140f), 7f, 0.045f);
 
       if (Main.netMode != NetmodeID.MultiplayerClient
-        && PrimordialCrossAttack.TryGetCross(AttackTick, out int index))
+        && PrimordialClawAttack.TryGetClaw(AttackTick, out int index))
       {
         Vector2 center = player.Center + player.velocity * 12f
           + Main.rand.NextVector2Circular(48f, 48f);
-        float baseAngle = Main.rand.NextBool() ? 0f : MathHelper.PiOver4;
+        float angle = Main.rand.NextBool() ? -MathHelper.PiOver4 : MathHelper.PiOver4;
         int damage = Main.masterMode ? 58 : Main.expertMode ? 48 : 34;
 
-        for (int i = 0; i < 2; i++)
-        {
-          float angle = baseAngle + i * MathHelper.PiOver2;
-          Projectile.NewProjectile(NPC.GetSource_FromAI(), center, Vector2.Zero,
-            ModContent.ProjectileType<PrimordialDemonCrossLaser>(),
-            damage, 0f, Main.myPlayer, angle);
-        }
+        Projectile.NewProjectile(NPC.GetSource_FromAI(), center, Vector2.Zero,
+          ModContent.ProjectileType<PrimordialDemonClaw>(),
+          damage, 0f, Main.myPlayer, angle);
 
         NPC.netUpdate = true;
       }
 
       if (Main.netMode != NetmodeID.MultiplayerClient
-        && AttackTick >= PrimordialCrossAttack.TotalDuration)
+        && AttackTick >= PrimordialClawAttack.TotalDuration)
       {
         State = ChangeSideState;
         FlyoverTimer = 0f;
@@ -1015,6 +1006,20 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
       float angle = GetOrbBirthAngle(index) + orbitAge * OrbAngularSpeed * spread;
       float radius = MathHelper.Lerp(OrbBirthRadius, OrbCircleRadius, spread);
       Vector2 offset = new Vector2(0f, -OrbCircleHeight) + angle.ToRotationVector2() * radius;
+
+      float scatterProgress = MathHelper.Clamp(
+        (AttackTick - PrimordialEmberAttack.RecoveryStart) / (float)PrimordialEmberAttack.RecoveryDuration, 0f, 1f);
+      if (scatterProgress > 0f)
+      {
+        float scatter = scatterProgress * scatterProgress;
+        float frozenAge = PrimordialEmberAttack.RecoveryStart - PrimordialEmberAttack.SummonDuration;
+        float frozenAngle = GetOrbBirthAngle(index) + frozenAge * OrbAngularSpeed;
+        float scatterAngle = frozenAngle + scatter * 0.45f;
+        float distance = PrimordialEmberAttack.ScatterDistance * (0.85f + index * 0.1f) * scatter;
+        offset = new Vector2(0f, -OrbCircleHeight) + frozenAngle.ToRotationVector2() * OrbCircleRadius
+          + scatterAngle.ToRotationVector2() * distance;
+      }
+
       return orbAnchor + offset * (NPC.scale / BaseScale);
     }
 

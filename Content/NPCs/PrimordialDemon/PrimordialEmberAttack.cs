@@ -20,6 +20,7 @@ namespace DivineRoot.Content.NPCs.PrimordialDemon
         public const int ShotDuration = FireTime + BeamDuration + ShotRestDuration;
         public const int VolleyStart = SummonDuration + SpreadDuration;
         public const int RecoveryDuration = 36;
+        public const float ScatterDistance = 230f;
         public const int RecoveryStart = VolleyStart + OrbCount * ShotDuration;
         public const int TotalDuration = RecoveryStart + RecoveryDuration;
 
