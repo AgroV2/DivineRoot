@@ -40,9 +40,9 @@ public class GhostOfTheBride : ModNPC
 		NPC.HitSound = SoundID.NPCHit54;
 		NPC.DeathSound = SoundID.NPCDeath6;
 		// TODO: change this PLEASE
-		this.NPC.damage = 1;
-		this.NPC.defense = 1;
-		this.NPC.lifeMax = 5000;
+		this.NPC.damage = 50;
+		this.NPC.defense = 100;
+		this.NPC.lifeMax = 1400;
 
 		this.NPC.value = 1000f;
 		this.NPC.knockBackResist = 0f;
@@ -62,7 +62,7 @@ public class GhostOfTheBride : ModNPC
 	{
 		if (spawnInfo.Player.ZoneSnow && spawnInfo.Player.ZoneRain)
 		{
-			return SpawnCondition.Overworld.Chance * 0.25f;
+			return SpawnCondition.Overworld.Chance * 0.10f;
 		}
 
 		return 0f;
